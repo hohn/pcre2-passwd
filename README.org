@@ -1,0 +1,15 @@
+* Setup
+  #+BEGIN_SRC sh 
+    mkdir pcre2-passwd
+    cd pcre2-passwd
+    git init .
+
+    python3.11 -m venv .venv
+    . .venv/bin/activate
+    pip install --upgrade pip
+    pip install pcre2 ipython
+
+    emacs . &
+  #+END_SRC
+* Running
+  See [[./match.py]]

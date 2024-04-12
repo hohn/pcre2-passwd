@@ -88,6 +88,8 @@ def pat_from_choices(s):
         e[s[3]],
     )
     
+#* Full lookahead expressions
+
 condition([ 3,  5,  7])
 
 pats = anchor(
@@ -113,45 +115,4 @@ pats
 ]
 
 
-# full lookahead expression
-pats = require(
-    condition([10, 3,  5,  7]), 
-)
-pats
-run(pats, 'foo bar 091..##bar091..##bar091..##')
-
-
-pats = and_(
-    or_(
-        require(condition([10, 3,  5,  7])),
-        require(condition([ 1,10,  5,  7])),
-        require(condition([ 1, 3, 10,  7])), 
-        require(condition([ 1, 3,  5, 10])), 
-    ),
-    repeat_(14, 64, condition([1,  3,  5,  7]))
-)
-
-pats = and_(
-    or_(
-    require(condition([10, 3,  5,  7])),
-    require(condition([ 1,10,  5,  7])),
-    require(condition([ 1, 3, 10,  7])), 
-    require(condition([ 1, 3,  5, 10])), 
-)
-    repeat_(14, 64, condition([1,  3,  5,  7])),
-)
-# pats = '((?=(@|[a-z]|[0-9]|[[:punct:]]))(?=([A-Z]|@|[0-9]|[[:punct:]]))(?=([A-Z]|[a-z]|@|[[:punct:]]))(?=([A-Z]|[a-z]|[0-9]|@))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64})'
-
-pats = '^((?=[A-Z]))([A-Z]|[a-z]|[0-9]){14,64}$'
-# simple sequential, no nesting
-pats = '^((?=([A-Z]|@|[0-9])))([A-Z]|[a-z]|[0-9]){14,64}$'
-# keep anchors $ and ^
-pats = '^(?=([A-Z]|@|[0-9]|[[:punct:]]))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64}$'
-pats = '^(?=([a-z]|[0-9]|[[:punct:]]))(?=([A-Z]|[0-9]|[[:punct:]]))(?=([A-Z]|[a-z]|[[:punct:]]))(?=([A-Z]|[a-z]|[0-9]))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64}$'
-pats
-[
-    run(pats, 'foobar'), 
-    run(pats, 'foobarfoobarfoobar'),
-    run(pats, 'foo bar 091..##bar091..##bar091..##'),
-    run(pats, 'FooBar10FooBar10FooBar10')
-]
+#  pats = '^(((((?=.*[a-z])(?=.*[0-9])(?=.*[[:punct:]]))|((?=.*[A-Z])(?=.*[0-9])(?=.*[[:punct:]]))|((?=.*[A-Z])(?=.*[a-z])(?=.*[[:punct:]]))|((?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64}))$'
