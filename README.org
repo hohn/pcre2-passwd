@@ -13,3 +13,7 @@
   #+END_SRC
 * Running
   See [[./match.py]]
+
+* Final Pattern
+  The final pattern is 
+  : pats = '^(((((?=.*[a-z])(?=.*[0-9])(?=.*[[:punct:]]))|((?=.*[A-Z])(?=.*[0-9])(?=.*[[:punct:]]))|((?=.*[A-Z])(?=.*[a-z])(?=.*[[:punct:]]))|((?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64}))$'
