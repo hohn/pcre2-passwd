@@ -33,8 +33,11 @@ e = [
 def or_(*s):
     return "".join(["(", r'|'.join(s), ")"])
 
+def anchor(*s):
+    return "".join(["^(", r''.join(s), ")$"])
+
 def require(*s):
-    return "".join(["(?=", *s, ")"])
+    return "".join(["(?=.*", *s, ")"])
 
 def and_(*s):
     return "".join(["(", r''.join(s), ")"])
@@ -70,24 +73,19 @@ def pat_from_choices(s):
     
 condition([ 3,  5,  7])
 
-pats = and_(
-    condition([ 3,  5,  7]),
-    repeat_(14, 64, pat_from_choices([1,  3,  5,  7])),
-)
-pats = '(((?=[a-z])(?=[0-9])(?=[[:punct:]]))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64})'
-# single look-ahead ok
-pats = '^((?=[A-Z]))([A-Z]|[a-z]|[0-9]){14,64}$'
-# ok with skipping lead chars
-pats = '^(?=.*[a-z])(?=.*[A-Z])([A-Z]|[a-z]|[0-9]){14,64}$'
-# pats = '^((?=[a-z])(?=[A-Z]))([A-Z]|[a-z]|[0-9]){14,64}$'
-# pats = '^(?=[0-9])([A-Z]|[a-z]|[0-9]){14,64}$'
+pats = anchor(
+    and_(
+        condition([ 3,  5,  7]),
+        repeat_(14, 64, pat_from_choices([1,  3,  5,  7])),
+    ))
 pats
-
+# # ok with skipping lead chars
+# pats = '^(?=.*[a-z])(?=.*[A-Z])([A-Z]|[a-z]|[0-9]){14,64}$'
 [
     run(pats, 'foobar'), 
     run(pats, 'foobarfoobarfoobar10'),
     run(pats, 'foobarfoobarfoobar'),
-    run(pats, 'foobarfoobarfoobar10..##'),
+    run(pats, 'foobarfoobarfoobar10##'),
     run(pats, 'foo bar 091..##bar091..##bar091..##'),
     run(pats, 'FooBar10FooBar10FooBar10')
 ]
