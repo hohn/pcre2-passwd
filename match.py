@@ -33,20 +33,14 @@ e = [
 def or_(*s):
     return "".join(["(", r'|'.join(s), ")"])
 
-def cond_(s):
-    return or_(
-        e[s[0]],
-        e[s[1]],
-        e[s[2]],
-        e[s[3]],
-        )
-
-cond_([ 1, 3,  5,  7])
-
 def require(*s):
     return "".join(["(?=", *s, ")"])
 
-require(cond_([ 1,  3,  5,  7]))
+def and_(*s):
+    return "".join(["(", r''.join(s), ")"])
+
+def repeat_(min_, max_, *s):
+    return "".join([*s, "{%d,%d}" % (min_, max_)])
 
 def run(pats, string):
     patn = pcre2.compile(pats, jit=True)
@@ -59,52 +53,75 @@ def run(pats, string):
         pass
     return ms
 
-pats = require(cond_([ 1, 3,  5,  7]))
-pats
-run(pats, 'foo bar 091..##bar091..##bar091..##')
+def condition(s):
+    return and_(
+        require(e[s[0]]),
+        require(e[s[1]]),
+        require(e[s[2]]),
+        )
 
-# incremental check
-pats = require(
-    cond_([ 1, 3,  5,  7]), 
-    cond_([10, 3,  5,  7]), 
+def pat_from_choices(s):
+    return or_(
+        e[s[0]],
+        e[s[1]],
+        e[s[2]],
+        e[s[3]],
+    )
+    
+condition([ 3,  5,  7])
+
+pats = and_(
+    condition([ 3,  5,  7]),
+    repeat_(14, 64, pat_from_choices([1,  3,  5,  7])),
 )
+pats = '(((?=[a-z])(?=[0-9])(?=[[:punct:]]))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64})'
+# single look-ahead ok
+pats = '^((?=[A-Z]))([A-Z]|[a-z]|[0-9]){14,64}$'
+# ok with skipping lead chars
+pats = '^(?=.*[a-z])(?=.*[A-Z])([A-Z]|[a-z]|[0-9]){14,64}$'
+# pats = '^((?=[a-z])(?=[A-Z]))([A-Z]|[a-z]|[0-9]){14,64}$'
+# pats = '^(?=[0-9])([A-Z]|[a-z]|[0-9]){14,64}$'
 pats
-run(pats, 'foo bar 091..##bar091..##bar091..##')
+
+[
+    run(pats, 'foobar'), 
+    run(pats, 'foobarfoobarfoobar10'),
+    run(pats, 'foobarfoobarfoobar'),
+    run(pats, 'foobarfoobarfoobar10..##'),
+    run(pats, 'foo bar 091..##bar091..##bar091..##'),
+    run(pats, 'FooBar10FooBar10FooBar10')
+]
+
 
 # full lookahead expression
 pats = require(
-    cond_([10, 3,  5,  7]), 
-    cond_([ 1,10,  5,  7]), 
-    cond_([ 1, 3, 10,  7]), 
-    cond_([ 1, 3,  5, 10]), 
+    condition([10, 3,  5,  7]), 
+    condition([ 1,10,  5,  7]), 
+    condition([ 1, 3, 10,  7]), 
+    condition([ 1, 3,  5, 10]), 
 )
 pats
 run(pats, 'foo bar 091..##bar091..##bar091..##')
 
-def and_(*s):
-    return "".join(["(", r''.join(s), ")"])
-
-def repeat_(min_, max_, *s):
-    return "".join([*s, "{%d,%d}" % (min_, max_)])
 
 pats = and_(
     or_(
-        require(cond_([10, 3,  5,  7])),
-        require(cond_([ 1,10,  5,  7])),
-        require(cond_([ 1, 3, 10,  7])), 
-        require(cond_([ 1, 3,  5, 10])), 
+        require(condition([10, 3,  5,  7])),
+        require(condition([ 1,10,  5,  7])),
+        require(condition([ 1, 3, 10,  7])), 
+        require(condition([ 1, 3,  5, 10])), 
     ),
-    repeat_(14, 64, cond_([1,  3,  5,  7]))
+    repeat_(14, 64, condition([1,  3,  5,  7]))
 )
 
 pats = and_(
     or_(
-    require(cond_([10, 3,  5,  7])),
-    require(cond_([ 1,10,  5,  7])),
-    require(cond_([ 1, 3, 10,  7])), 
-    require(cond_([ 1, 3,  5, 10])), 
+    require(condition([10, 3,  5,  7])),
+    require(condition([ 1,10,  5,  7])),
+    require(condition([ 1, 3, 10,  7])), 
+    require(condition([ 1, 3,  5, 10])), 
 )
-    repeat_(14, 64, cond_([1,  3,  5,  7])),
+    repeat_(14, 64, condition([1,  3,  5,  7])),
 )
 # pats = '((?=(@|[a-z]|[0-9]|[[:punct:]]))(?=([A-Z]|@|[0-9]|[[:punct:]]))(?=([A-Z]|[a-z]|@|[[:punct:]]))(?=([A-Z]|[a-z]|[0-9]|@))([A-Z]|[a-z]|[0-9]|[[:punct:]]){14,64})'
 
