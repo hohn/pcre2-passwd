@@ -1,3 +1,26 @@
+* Purpose
+  Some problems can be solved using regular expressions but probably shouldn't
+  be.  This is one such problem:
+
+  Given a password candidate string and the following conditions:
+
+  1. English uppercase characters A-Z
+  2. English lowercase characters a-z
+  3. Numerals 0-9
+  4. Non-alphanumeric characters
+  5. Length minimum 14 maximum 64
+
+  We require that the password string satisfies the following:
+  1. Has 1 character from at least 3 of the first 4
+  2. Has only characters from 1-4
+
+  Nevertheless, /deriving/ a regular expression for it is interesting, and it may
+  be handy to have a script to help compose regular expressions.
+
+  That script is [[./match.py]].  It is intended for interactive exploration and
+  modification via ipython.  It could be used in a jupyter notebook.
+
+  
 * Setup
   #+BEGIN_SRC sh 
     mkdir pcre2-passwd
