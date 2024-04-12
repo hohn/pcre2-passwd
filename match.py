@@ -1,3 +1,20 @@
+#* introduction
+"""
+* pcre2 single expression
+  Given
+
+  1. English uppercase characters A-Z
+  2. English lowercase characters a-z
+  3. Numerals 0-9
+  4. Non-alphanumeric characters
+  5. Length minimum 14 maximum 64
+
+  We require:
+  1. 1 character from at least 3 of the first 4
+  2. only characters fro 1-4
+
+  Note that 3 and 4 imply no program identifiers.
+"""
 #* header
 import pcre2.exceptions
 import pcre2
