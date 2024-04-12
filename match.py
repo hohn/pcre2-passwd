@@ -75,18 +75,23 @@ condition([ 3,  5,  7])
 
 pats = anchor(
     and_(
-        condition([ 3,  5,  7]),
+        or_(
+            condition([ 3, 5,  7]),
+            condition([ 1, 5,  7]), 
+            condition([ 1, 3,  7]), 
+            condition([ 1, 3,  5]), 
+        ),
         repeat_(14, 64, pat_from_choices([1,  3,  5,  7])),
     ))
 pats
-# # ok with skipping lead chars
-# pats = '^(?=.*[a-z])(?=.*[A-Z])([A-Z]|[a-z]|[0-9]){14,64}$'
 [
     run(pats, 'foobar'), 
-    run(pats, 'foobarfoobarfoobar10'),
     run(pats, 'foobarfoobarfoobar'),
-    run(pats, 'foobarfoobarfoobar10##'),
+    run(pats, 'foobarfoobarfoobar10'),
     run(pats, 'foo bar 091..##bar091..##bar091..##'),
+    run(pats, 'FOObarfoobarfoobar##'),
+    run(pats, 'FOOBARFOOBARFOOBAR10##'),
+    run(pats, 'foobarfoobarfoobar10##'),
     run(pats, 'FooBar10FooBar10FooBar10')
 ]
 
@@ -94,9 +99,6 @@ pats
 # full lookahead expression
 pats = require(
     condition([10, 3,  5,  7]), 
-    condition([ 1,10,  5,  7]), 
-    condition([ 1, 3, 10,  7]), 
-    condition([ 1, 3,  5, 10]), 
 )
 pats
 run(pats, 'foo bar 091..##bar091..##bar091..##')
